@@ -1,0 +1,47 @@
+{
+  "name": "distributed-banking-system",
+  "version": "1.0.0",
+  "description": "A distributed banking database system with microservices architecture using Node.js, TypeScript, and PostgreSQL",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:accounts\" \"npm run dev:transactions\" \"npm run dev:customer\"",
+    "dev:accounts": "cd services/accounts-service && npm run dev",
+    "dev:transactions": "cd services/transactions-service && npm run dev",
+    "dev:customer": "cd services/customer-service && npm run dev",
+    "build": "npm run build:accounts && npm run build:transactions && npm run build:customer",
+    "build:accounts": "cd services/accounts-service && npm run build",
+    "build:transactions": "cd services/transactions-service && npm run build",
+    "build:customer": "cd services/customer-service && npm run build",
+    "start": "docker-compose up --build",
+    "stop": "docker-compose down",
+    "db:setup": "node scripts/setup-databases.js",
+    "db:migrate": "npm run db:migrate:accounts && npm run db:migrate:transactions && npm run db:migrate:customer",
+    "db:migrate:accounts": "cd services/accounts-service && npm run db:migrate",
+    "db:migrate:transactions": "cd services/transactions-service && npm run db:migrate",
+    "db:migrate:customer": "cd services/customer-service && npm run db:migrate",
+    "client": "cd client && npm start",
+    "test:race": "cd client && npm run test:race-condition",
+    "test:2pc": "cd client && npm run test:two-phase-commit"
+  },
+  "keywords": [
+    "distributed-systems",
+    "microservices",
+    "banking",
+    "two-phase-commit",
+    "nodejs",
+    "typescript",
+    "postgresql"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "workspaces": [
+    "services/accounts-service",
+    "services/transactions-service",
+    "services/customer-service",
+    "client",
+    "shared"
+  ]
+}

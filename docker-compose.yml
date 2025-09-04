@@ -1,0 +1,122 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Databases
+  customer-db:
+    image: postgres:15
+    container_name: customer-db
+    environment:
+      POSTGRES_DB: customer_db
+      POSTGRES_USER: banking_user
+      POSTGRES_PASSWORD: banking_pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - customer_data:/var/lib/postgresql/data
+      - ./docker/init-customer-db.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - banking-network
+
+  accounts-db:
+    image: postgres:15
+    container_name: accounts-db
+    environment:
+      POSTGRES_DB: accounts_db
+      POSTGRES_USER: banking_user
+      POSTGRES_PASSWORD: banking_pass
+    ports:
+      - "5433:5432"
+    volumes:
+      - accounts_data:/var/lib/postgresql/data
+      - ./docker/init-accounts-db.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - banking-network
+
+  transactions-db:
+    image: postgres:15
+    container_name: transactions-db
+    environment:
+      POSTGRES_DB: transactions_db
+      POSTGRES_USER: banking_user
+      POSTGRES_PASSWORD: banking_pass
+    ports:
+      - "5434:5432"
+    volumes:
+      - transactions_data:/var/lib/postgresql/data
+      - ./docker/init-transactions-db.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - banking-network
+
+  # Microservices
+  customer-service:
+    build:
+      context: ./services/customer-service
+      dockerfile: Dockerfile
+    container_name: customer-service
+    ports:
+      - "3001:3000"
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=postgresql://banking_user:banking_pass@customer-db:5432/customer_db
+      - JWT_SECRET=your-super-secret-jwt-key
+      - SERVICE_NAME=CustomerService
+      - SERVICE_PORT=3000
+    depends_on:
+      - customer-db
+    volumes:
+      - ./logs:/app/logs
+    networks:
+      - banking-network
+
+  accounts-service:
+    build:
+      context: ./services/accounts-service
+      dockerfile: Dockerfile
+    container_name: accounts-service
+    ports:
+      - "3002:3000"
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=postgresql://banking_user:banking_pass@accounts-db:5432/accounts_db
+      - JWT_SECRET=your-super-secret-jwt-key
+      - SERVICE_NAME=AccountsService
+      - SERVICE_PORT=3000
+    depends_on:
+      - accounts-db
+    volumes:
+      - ./logs:/app/logs
+    networks:
+      - banking-network
+
+  transactions-service:
+    build:
+      context: ./services/transactions-service
+      dockerfile: Dockerfile
+    container_name: transactions-service
+    ports:
+      - "3003:3000"
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=postgresql://banking_user:banking_pass@transactions-db:5432/transactions_db
+      - JWT_SECRET=your-super-secret-jwt-key
+      - SERVICE_NAME=TransactionsService
+      - SERVICE_PORT=3000
+      - ACCOUNTS_SERVICE_URL=http://accounts-service:3000
+      - CUSTOMER_SERVICE_URL=http://customer-service:3000
+    depends_on:
+      - transactions-db
+      - accounts-service
+      - customer-service
+    volumes:
+      - ./logs:/app/logs
+    networks:
+      - banking-network
+
+volumes:
+  customer_data:
+  accounts_data:
+  transactions_data:
+
+networks:
+  banking-network:
+    driver: bridge
