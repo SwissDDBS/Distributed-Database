@@ -4,6 +4,8 @@
   "description": "A distributed banking database system with microservices architecture using Node.js, TypeScript, and PostgreSQL",
   "main": "index.js",
   "scripts": {
+    "install:all": "npm install && npm run install:services",
+    "install:services": "cd services/accounts-service && npm install && cd ../transactions-service && npm install && cd ../customer-service && npm install && cd ../../client && npm install && cd ../shared && npm install",
     "dev": "concurrently \"npm run dev:accounts\" \"npm run dev:transactions\" \"npm run dev:customer\"",
     "dev:accounts": "cd services/accounts-service && npm run dev",
     "dev:transactions": "cd services/transactions-service && npm run dev",
