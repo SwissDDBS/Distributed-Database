@@ -71,9 +71,10 @@ export class AccountRepository {
       .where(and(
         eq(accounts.account_id, accountId),
         isNull(accounts.transaction_lock) // Only lock if not already locked
-      ));
+      ))
+      .returning();
     
-    return result.rowCount > 0;
+    return result.length > 0;
   }
 
   /**
@@ -118,9 +119,10 @@ export class AccountRepository {
       .where(and(
         eq(accounts.account_id, accountId),
         eq(accounts.transaction_lock, transactionId)
-      ));
+      ))
+      .returning();
     
-    return result.rowCount > 0;
+    return result.length > 0;
   }
 
   /**
@@ -137,9 +139,10 @@ export class AccountRepository {
       .where(and(
         eq(accounts.account_id, accountId),
         eq(accounts.transaction_lock, transactionId)
-      ));
+      ))
+      .returning();
     
-    return result.rowCount > 0;
+    return result.length > 0;
   }
 
   /**

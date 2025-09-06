@@ -8,6 +8,13 @@
       "when": 1757038348423,
       "tag": "0000_aspiring_blink",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1757185893326,
+      "tag": "0001_fair_butterfly",
+      "breakpoints": true
     }
   ]
 }

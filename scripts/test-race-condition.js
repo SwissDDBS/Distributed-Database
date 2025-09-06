@@ -17,7 +17,7 @@ const axios = require('axios');
 
 // Configuration
 const ACCOUNTS_SERVICE_URL = process.env.ACCOUNTS_SERVICE_URL || 'http://localhost:3002';
-const JWT_SECRET = process.env.JWT_SECRET || 'your-super-secret-jwt-key';
+const JWT_SECRET = process.env.JWT_SECRET || 'e681bda1351b31126bdccbfdad0ac6ea887d8276bf9fd86a542e0326c718e24c';
 
 // Test account (Alice's first account from sample data)
 const TEST_ACCOUNT_ID = '660e8400-e29b-41d4-a716-446655440001';

@@ -13,10 +13,7 @@ export const accounts = pgTable('accounts', {
   
   created_at: timestamp('created_at', { withTimezone: true }).notNull().default(sql`NOW()`),
   updated_at: timestamp('updated_at', { withTimezone: true }).notNull().default(sql`NOW()`),
-}, (table) => ({
-  // Ensure transaction_lock is unique when not null
-  uniqueTransactionLock: unique('unique_transaction_lock').on(table.transaction_lock),
-}));
+});
 
 // Type inference for TypeScript
 export type Account = typeof accounts.$inferSelect;

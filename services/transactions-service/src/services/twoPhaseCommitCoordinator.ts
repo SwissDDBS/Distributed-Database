@@ -2,6 +2,7 @@ import axios, { AxiosResponse } from 'axios';
 import { config } from '../config';
 import { logger, logCoordinatorEvent, logTransactionLifecycle, logParticipantResponse } from '../utils/logger';
 import { TransactionRepository } from '../models/trasactionRepository';
+import jwt from 'jsonwebtoken';
 
 export interface PrepareRequest {
   transaction_id: string;
@@ -57,7 +58,7 @@ export class TwoPhaseCommitCoordinator {
     initiatorId: string
   ): Promise<TransferResult> {
     const { source_account_id, destination_account_id, amount } = transferRequest;
-
+    const serviceAdminToken = jwt.sign({ customer_id: 'service-coordinator', role: 'admin' }, config.jwt.secret, { expiresIn: '1h' });
     // Step 1: Create transaction record
     const transaction = await this.transactionRepo.create({
       source_account_id,
@@ -81,7 +82,7 @@ export class TwoPhaseCommitCoordinator {
         phase: 'PREPARE_START',
       });
 
-      const prepareResults = await this.preparePhase(transactionId, transferRequest, authToken);
+      const prepareResults = await this.preparePhase(transactionId, transferRequest, serviceAdminToken);
       
       // Check if all participants voted to commit
       const allCommit = prepareResults.every(result => result.vote === 'commit');
@@ -94,7 +95,7 @@ export class TwoPhaseCommitCoordinator {
         });
 
         // Step 3a: Phase 2 - Abort
-        await this.abortPhase(transactionId, transferRequest, authToken);
+        await this.abortPhase(transactionId, transferRequest, serviceAdminToken);
         await this.transactionRepo.updateStatus(transactionId, 'aborted');
 
         logTransactionLifecycle('ABORT', transactionId, {
@@ -117,8 +118,8 @@ export class TwoPhaseCommitCoordinator {
         phase: 'COMMIT_START',
       });
 
-      const commitResults = await this.commitPhase(transactionId, transferRequest, authToken);
-      
+      const commitResults = await this.commitPhase(transactionId, transferRequest, serviceAdminToken);
+
       // Check if all commits succeeded
       const allCommitSuccess = commitResults.every(result => result.success);
 
@@ -169,7 +170,7 @@ export class TwoPhaseCommitCoordinator {
 
       // Try to abort the transaction
       try {
-        await this.abortPhase(transactionId, transferRequest, authToken);
+        await this.abortPhase(transactionId, transferRequest, serviceAdminToken);
         await this.transactionRepo.updateStatus(transactionId, 'aborted');
       } catch (abortError) {
         logger.error('Failed to abort transaction after error', {
@@ -257,7 +258,7 @@ export class TwoPhaseCommitCoordinator {
   private async commitPhase(
     transactionId: string,
     transferRequest: TransferRequest,
-    authToken: string
+    serviceAdminToken: string
   ): Promise<Array<{ success: boolean; account_id: string; error?: any }>> {
     const { source_account_id, destination_account_id } = transferRequest;
 
@@ -265,13 +266,13 @@ export class TwoPhaseCommitCoordinator {
       this.sendCommitRequest({
         transaction_id: transactionId,
         account_id: source_account_id,
-      }, authToken).then(() => ({ success: true, account_id: source_account_id }))
+      }, serviceAdminToken).then(() => ({ success: true, account_id: source_account_id }))
         .catch(error => ({ success: false, account_id: source_account_id, error })),
       
       this.sendCommitRequest({
         transaction_id: transactionId,
         account_id: destination_account_id,
-      }, authToken).then(() => ({ success: true, account_id: destination_account_id }))
+      }, serviceAdminToken).then(() => ({ success: true, account_id: destination_account_id }))
         .catch(error => ({ success: false, account_id: destination_account_id, error })),
     ];
 
@@ -284,7 +285,7 @@ export class TwoPhaseCommitCoordinator {
         logParticipantResponse('AccountsService', transactionId, 'COMMIT', 
           result.value.success ? 'SUCCESS' : 'FAILURE', {
           account_id: accountId,
-          error: result.value.error,
+          error: 'error' in result.value ? result.value.error : undefined,
         });
         return result.value;
       } else {
@@ -307,7 +308,7 @@ export class TwoPhaseCommitCoordinator {
   private async abortPhase(
     transactionId: string,
     transferRequest: TransferRequest,
-    authToken: string
+    serviceAdminToken: string
   ): Promise<void> {
     const { source_account_id, destination_account_id } = transferRequest;
 
@@ -315,7 +316,7 @@ export class TwoPhaseCommitCoordinator {
       this.sendAbortRequest({
         transaction_id: transactionId,
         account_id: source_account_id,
-      }, authToken).catch(error => {
+      }, serviceAdminToken).catch(error => {
         logParticipantResponse('AccountsService', transactionId, 'ABORT', 'FAILURE', {
           account_id: source_account_id,
           error: error.message,
@@ -325,7 +326,7 @@ export class TwoPhaseCommitCoordinator {
       this.sendAbortRequest({
         transaction_id: transactionId,
         account_id: destination_account_id,
-      }, authToken).catch(error => {
+      }, serviceAdminToken).catch(error => {
         logParticipantResponse('AccountsService', transactionId, 'ABORT', 'FAILURE', {
           account_id: destination_account_id,
           error: error.message,
@@ -341,7 +342,7 @@ export class TwoPhaseCommitCoordinator {
    */
   private async sendPrepareRequest(
     request: PrepareRequest,
-    authToken: string
+    serviceAdminToken: string
   ): Promise<PrepareResponse> {
     try {
       const response: AxiosResponse = await axios.post(
@@ -349,7 +350,7 @@ export class TwoPhaseCommitCoordinator {
         request,
         {
           headers: {
-            'Authorization': `Bearer ${authToken}`,
+            'Authorization': `Bearer ${serviceAdminToken}`,
             'Content-Type': 'application/json',
           },
           timeout: config.twoPhaseCommit.prepareTimeout,
@@ -392,14 +393,14 @@ export class TwoPhaseCommitCoordinator {
    */
   private async sendCommitRequest(
     request: CommitAbortRequest,
-    authToken: string
+    serviceAdminToken: string
   ): Promise<void> {
     const response = await axios.post(
       `${this.accountsServiceUrl}/2pc/commit`,
       request,
       {
         headers: {
-          'Authorization': `Bearer ${authToken}`,
+          'Authorization': `Bearer ${serviceAdminToken}`,
           'Content-Type': 'application/json',
         },
         timeout: config.twoPhaseCommit.commitTimeout,
@@ -416,14 +417,14 @@ export class TwoPhaseCommitCoordinator {
    */
   private async sendAbortRequest(
     request: CommitAbortRequest,
-    authToken: string
+    serviceAdminToken: string
   ): Promise<void> {
     const response = await axios.post(
       `${this.accountsServiceUrl}/2pc/abort`,
       request,
       {
         headers: {
-          'Authorization': `Bearer ${authToken}`,
+          'Authorization': `Bearer ${serviceAdminToken}`,
           'Content-Type': 'application/json',
         },
         timeout: config.twoPhaseCommit.commitTimeout,
