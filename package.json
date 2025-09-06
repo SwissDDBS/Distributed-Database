@@ -17,6 +17,10 @@
     "start": "docker-compose up --build",
     "stop": "docker-compose down",
     "db:setup": "node scripts/setup-databases.js",
+    "db:generate": "npm run db:generate:accounts && npm run db:generate:transactions && npm run db:generate:customer",
+    "db:generate:accounts": "cd services/accounts-service && npm run db:generate",
+    "db:generate:transactions": "cd services/transactions-service && npm run db:generate",
+    "db:generate:customer": "cd services/customer-service && npm run db:generate",
     "db:migrate": "npm run db:migrate:accounts && npm run db:migrate:transactions && npm run db:migrate:customer",
     "db:migrate:accounts": "cd services/accounts-service && npm run db:migrate",
     "db:migrate:transactions": "cd services/transactions-service && npm run db:migrate",
@@ -37,7 +41,8 @@
   "author": "",
   "license": "MIT",
   "devDependencies": {
-    "concurrently": "^8.2.2"
+    "concurrently": "^8.2.2",
+    "pg": "^8.16.3"
   },
   "workspaces": [
     "services/accounts-service",

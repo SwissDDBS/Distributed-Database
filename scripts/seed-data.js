@@ -15,8 +15,8 @@ const databases = [
       host: 'localhost',
       port: 5432,
       database: 'customer_db',
-      user: 'banking_user',
-      password: 'banking_pass',
+      user: 'poltergeist',
+      password: 'shyama',
     },
   },
   {
@@ -25,8 +25,8 @@ const databases = [
       host: 'localhost',
       port: 5433,
       database: 'accounts_db',
-      user: 'banking_user',
-      password: 'banking_pass',
+      user: 'poltergeist',
+      password: 'shyama',
     },
   },
   {
@@ -35,8 +35,8 @@ const databases = [
       host: 'localhost',
       port: 5434,
       database: 'transactions_db',
-      user: 'banking_user',
-      password: 'banking_pass',
+      user: 'poltergeist',
+      password: 'shyama',
     },
   },
 ];

@@ -14,8 +14,8 @@ const jwt = require('jsonwebtoken');
 
 // Configuration
 const ACCOUNTS_SERVICE_URL = process.env.ACCOUNTS_SERVICE_URL || 'http://localhost:3002';
-const TRANSACTIONS_SERVICE_URL = process.env.TRANSACTIONS_SERVICE_URL || 'http://localhost:3003';
-const JWT_SECRET = process.env.JWT_SECRET || 'your-super-secret-jwt-key';
+const TRANSACTIONS_SERVICE_URL = process.env.TRANSACTIONS_SERVICE_URL || 'http://localhost:3000';
+const JWT_SECRET = process.env.JWT_SECRET || 'e681bda1351b31126bdccbfdad0ac6ea887d8276bf9fd86a542e0326c718e24c';
 
 // Test accounts from sample data
 const ALICE_ACCOUNT = '660e8400-e29b-41d4-a716-446655440001';
