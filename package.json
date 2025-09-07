@@ -27,7 +27,8 @@
     "db:migrate:customer": "cd services/customer-service && npm run db:migrate",
     "client": "cd client && npm start",
     "test:race": "cd client && npm run test:race-condition",
-    "test:2pc": "cd client && npm run test:two-phase-commit"
+    "test:2pc": "cd client && npm run test:two-phase-commit",
+    "debug:flow": "node flow-debugger.js"
   },
   "keywords": [
     "distributed-systems",
@@ -42,7 +43,10 @@
   "license": "MIT",
   "devDependencies": {
     "concurrently": "^8.2.2",
-    "pg": "^8.16.3"
+    "pg": "^8.16.3",
+    "tail": "^2.2.4",
+    "chalk": "^4.1.2",
+    "moment": "^2.29.4"
   },
   "workspaces": [
     "services/accounts-service",
