@@ -29,15 +29,15 @@ program
   .action(async (options) => {
     try {
       if (!options.user) {
-        console.log(chalk.red('❌ User ID is required'));
+        console.log(chalk.red(' User ID is required'));
         process.exit(1);
       }
       
       await client.login(options.user, options.role);
-      console.log(chalk.green('✅ Login successful'));
-      console.log(chalk.blue('💡 You can now use other commands or start interactive mode'));
+      console.log(chalk.green(' Login successful'));
+      console.log(chalk.blue(' You can now use other commands or start interactive mode'));
     } catch (error) {
-      console.log(chalk.red(`❌ Login failed: ${error instanceof Error ? error.message : error}`));
+      console.log(chalk.red(` Login failed: ${error instanceof Error ? error.message : error}`));
     }
   });
 
@@ -46,7 +46,7 @@ program
   .description('Logout current user')
   .action(() => {
     client.logout();
-    console.log(chalk.green('✅ Logged out successfully'));
+    console.log(chalk.green(' Logged out successfully'));
   });
 
 // Customer commands
@@ -58,20 +58,20 @@ program
     try {
       const customerId = options.id || client.getCurrentUserId();
       if (!customerId) {
-        console.log(chalk.red('❌ Please login first or specify customer ID'));
+        console.log(chalk.red(' Please login first or specify customer ID'));
         return;
       }
       
       const customer = await client.getCustomer(customerId);
       
-      console.log(chalk.blue('\n👤 Customer Profile:'));
+      console.log(chalk.blue('\n Customer Profile:'));
       console.log(chalk.white(`Name: ${customer.name}`));
       console.log(chalk.white(`ID: ${customer.customer_id}`));
       console.log(chalk.white(`Address: ${customer.address || 'Not provided'}`));
       console.log(chalk.white(`Email: ${customer.contact_info?.email || 'Not provided'}`));
       console.log(chalk.white(`Phone: ${customer.contact_info?.phone || 'Not provided'}`));
     } catch (error) {
-      console.log(chalk.red(`❌ Error: ${error instanceof Error ? error.message : error}`));
+      console.log(chalk.red(` Error: ${error instanceof Error ? error.message : error}`));
     }
   });
 
@@ -84,13 +84,13 @@ program
     try {
       const customerId = options.customer || client.getCurrentUserId();
       if (!customerId) {
-        console.log(chalk.red('❌ Please login first or specify customer ID'));
+        console.log(chalk.red(' Please login first or specify customer ID'));
         return;
       }
       
       const accounts = await client.getCustomerAccounts(customerId);
       
-      console.log(chalk.blue(`\n💰 Accounts for Customer ${customerId}:`));
+      console.log(chalk.blue(`\n Accounts for Customer ${customerId}:`));
       if (accounts.length === 0) {
         console.log(chalk.yellow('No accounts found'));
         return;
@@ -103,11 +103,11 @@ program
           console.log(chalk.yellow(`   Pending: $${account.pending_change.toFixed(2)}`));
         }
         if (account.transaction_lock) {
-          console.log(chalk.red(`   🔒 Locked by transaction: ${account.transaction_lock}`));
+          console.log(chalk.red(`    Locked by transaction: ${account.transaction_lock}`));
         }
       });
     } catch (error) {
-      console.log(chalk.red(`❌ Error: ${error instanceof Error ? error.message : error}`));
+      console.log(chalk.red(` Error: ${error instanceof Error ? error.message : error}`));
     }
   });
 
@@ -119,7 +119,7 @@ program
     try {
       const account = await client.getAccount(options.account);
       
-      console.log(chalk.blue(`\n💰 Account ${options.account}:`));
+      console.log(chalk.blue(`\n Account ${options.account}:`));
       console.log(chalk.green(`Current Balance: $${account.balance.toFixed(2)}`));
       
       if (account.pending_change) {
@@ -129,10 +129,10 @@ program
       }
       
       if (account.transaction_lock) {
-        console.log(chalk.red(`🔒 Account is locked by transaction: ${account.transaction_lock}`));
+        console.log(chalk.red(` Account is locked by transaction: ${account.transaction_lock}`));
       }
     } catch (error) {
-      console.log(chalk.red(`❌ Error: ${error instanceof Error ? error.message : error}`));
+      console.log(chalk.red(` Error: ${error instanceof Error ? error.message : error}`));
     }
   });
 
@@ -147,11 +147,11 @@ program
     try {
       const amount = parseFloat(options.amount);
       if (isNaN(amount) || amount <= 0) {
-        console.log(chalk.red('❌ Invalid amount. Must be a positive number.'));
+        console.log(chalk.red(' Invalid amount. Must be a positive number.'));
         return;
       }
       
-      console.log(chalk.blue(`\n💸 Initiating transfer:`));
+      console.log(chalk.blue(`\n Initiating transfer:`));
       console.log(chalk.white(`From: ${options.from}`));
       console.log(chalk.white(`To: ${options.to}`));
       console.log(chalk.white(`Amount: $${amount.toFixed(2)}`));
@@ -159,17 +159,19 @@ program
       const result = await client.transfer(options.from, options.to, amount);
       
       if (result.success) {
-        console.log(chalk.green(`\n✅ Transfer successful!`));
-        console.log(chalk.white(`Transaction ID: ${result.data.transaction_id}`));
-        console.log(chalk.white(`Status: ${result.data.status}`));
+        console.log(chalk.green(`\n Transfer successful!`));
+        if (result.data) {
+          console.log(chalk.white(`Transaction ID: ${result.data.transaction_id}`));
+          console.log(chalk.white(`Status: ${result.data.status}`));
+        }
       } else {
-        console.log(chalk.red(`\n❌ Transfer failed: ${result.error?.message}`));
+        console.log(chalk.red(`\n Transfer failed: ${result.error?.message}`));
         if (result.details) {
           console.log(chalk.yellow('Details:', JSON.stringify(result.details, null, 2)));
         }
       }
     } catch (error) {
-      console.log(chalk.red(`❌ Error: ${error instanceof Error ? error.message : error}`));
+      console.log(chalk.red(` Error: ${error instanceof Error ? error.message : error}`));
     }
   });
 
@@ -181,7 +183,7 @@ program
     try {
       const transaction = await client.getTransaction(options.id);
       
-      console.log(chalk.blue(`\n📋 Transaction ${options.id}:`));
+      console.log(chalk.blue(`\n Transaction ${options.id}:`));
       console.log(chalk.white(`From: ${transaction.source_account_id}`));
       console.log(chalk.white(`To: ${transaction.destination_account_id}`));
       console.log(chalk.white(`Amount: $${transaction.amount.toFixed(2)}`));
@@ -195,7 +197,7 @@ program
         console.log(chalk.gray(`Updated: ${new Date(transaction.updated_at!).toLocaleString()}`));
       }
     } catch (error) {
-      console.log(chalk.red(`❌ Error: ${error instanceof Error ? error.message : error}`));
+      console.log(chalk.red(` Error: ${error instanceof Error ? error.message : error}`));
     }
   });
 
@@ -204,7 +206,7 @@ program
   .command('health')
   .description('Check service health')
   .action(async () => {
-    console.log(chalk.blue('\n🏥 Checking service health...\n'));
+    console.log(chalk.blue('\n Checking service health...\n'));
     
     const services = [
       { name: 'Customer Service', url: config.services.customerServiceUrl },
@@ -216,15 +218,15 @@ program
       try {
         const health = await client.checkHealth(service.url);
         if (health.success) {
-          console.log(chalk.green(`✅ ${service.name}: Healthy`));
+          console.log(chalk.green(` ${service.name}: Healthy`));
           if (health.data.uptime) {
             console.log(chalk.gray(`   Uptime: ${Math.round(health.data.uptime / 1000)}s`));
           }
         } else {
-          console.log(chalk.yellow(`⚠️  ${service.name}: Unhealthy`));
+          console.log(chalk.yellow(`  ${service.name}: Unhealthy`));
         }
       } catch (error) {
-        console.log(chalk.red(`❌ ${service.name}: Not available`));
+        console.log(chalk.red(` ${service.name}: Not available`));
       }
     }
   });
@@ -236,19 +238,19 @@ program
   .option('-c, --concurrent', 'Test concurrent operations')
   .action(async (options) => {
     if (options.raceCondition) {
-      console.log(chalk.blue('\n🏁 Running race condition demonstration...'));
-      console.log(chalk.yellow('⚠️  This will demonstrate unsafe concurrent operations'));
+      console.log(chalk.blue('\n Running race condition demonstration...'));
+      console.log(chalk.yellow('  This will demonstrate unsafe concurrent operations'));
       // Import and run race condition demo
       const { spawn } = require('child_process');
       const demo = spawn('node', ['../scripts/test-race-condition.js'], { stdio: 'inherit' });
-      demo.on('close', (code) => {
+      demo.on('close', (code: number) => {
         console.log(chalk.blue(`\nRace condition demo finished with code ${code}`));
       });
     } else if (options.concurrent) {
-      console.log(chalk.blue('\n🧪 Running concurrent operations test...'));
+      console.log(chalk.blue('\n Running concurrent operations test...'));
       const { spawn } = require('child_process');
       const test = spawn('node', ['../scripts/test-concurrent-operations.js'], { stdio: 'inherit' });
-      test.on('close', (code) => {
+      test.on('close', (code: number) => {
         console.log(chalk.blue(`\nConcurrent operations test finished with code ${code}`));
       });
     } else {
@@ -282,13 +284,13 @@ program.exitOverride((err) => {
   if (err.code === 'commander.help') {
     process.exit(0);
   }
-  console.log(chalk.red(`❌ Command error: ${err.message}`));
+  console.log(chalk.red(` Command error: ${err.message}`));
   process.exit(1);
 });
 
 // Parse command line arguments
 if (process.argv.length <= 2) {
-  console.log(chalk.blue('🏦 Welcome to the Distributed Banking System CLI!'));
+  console.log(chalk.blue(' Welcome to the Distributed Banking System CLI!'));
   console.log(chalk.white('\nAvailable commands:'));
   program.help();
 } else {

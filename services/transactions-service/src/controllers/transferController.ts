@@ -12,7 +12,7 @@ export class TransferController {
    */
   async executeTransfer(req: Request, res: Response, next: NextFunction) {
     try {
-      const { source_account_id, destination_account_id, amount } = req.body;
+      const { source_account_id, destination_account_id, amount, transaction_id } = req.body;
 
       // Validate required fields
       if (!source_account_id || !destination_account_id || amount === undefined) {
@@ -37,23 +37,27 @@ export class TransferController {
 
       const initiatorId = req.user?.customer_id || 'unknown';
 
-      logCoordinatorEvent('TRANSFER_REQUEST_RECEIVED', 'pending', {
+      logCoordinatorEvent('TRANSFER_REQUEST_RECEIVED', transaction_id || 'pending', {
         source_account_id,
         destination_account_id,
         amount,
         initiator: initiatorId,
+        retry_with_transaction_id: !!transaction_id,
       });
 
-      // Execute the transfer using 2PC protocol
-      const result = await coordinator.executeTransfer(
+      // Execute the transfer using 2PC protocol with retry mechanism
+      const result = await coordinator.executeTransferWithRetry(
         { source_account_id, destination_account_id, amount },
         authHeader,
-        initiatorId
+        initiatorId,
+        transaction_id // Pass provided transaction ID for retry
       );
 
       logCoordinatorEvent('TRANSFER_REQUEST_COMPLETED', result.transaction_id, {
         status: result.status,
         message: result.message,
+        retry_attempt: result.retry_attempt,
+        total_attempts: result.total_attempts,
       });
 
       const statusCode = result.status === 'committed' ? 200 : 409;
@@ -66,6 +70,8 @@ export class TransferController {
           source_account_id,
           destination_account_id,
           amount,
+          retry_attempt: result.retry_attempt,
+          total_attempts: result.total_attempts,
         },
         message: result.message,
         ...(result.details && { details: result.details }),

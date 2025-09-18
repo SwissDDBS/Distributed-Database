@@ -16,6 +16,18 @@ export class TransactionRepository {
   }
 
   /**
+   * Create a new transaction with a specific ID (for retry scenarios)
+   */
+  async createWithId(transactionData: Omit<NewTransaction, 'created_at' | 'updated_at'>): Promise<TransactionWithAmount> {
+    const [transaction] = await db
+      .insert(transactions)
+      .values(transactionData)
+      .returning();
+    
+    return this.parseTransaction(transaction);
+  }
+
+  /**
    * Find transaction by ID
    */
   async findById(transactionId: string): Promise<TransactionWithAmount | null> {

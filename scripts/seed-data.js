@@ -105,7 +105,7 @@ async function seedCustomerData() {
   
   try {
     await client.connect();
-    console.log('📦 Seeding customer data...');
+    console.log(' Seeding customer data...');
     
     // Clear existing data
     await client.query('TRUNCATE TABLE customers CASCADE');
@@ -118,10 +118,10 @@ async function seedCustomerData() {
       );
     }
     
-    console.log(`✅ Inserted ${sampleCustomers.length} customers`);
+    console.log(` Inserted ${sampleCustomers.length} customers`);
     
   } catch (error) {
-    console.error('❌ Error seeding customer data:', error);
+    console.error(' Error seeding customer data:', error);
     throw error;
   } finally {
     await client.end();
@@ -133,7 +133,7 @@ async function seedAccountData() {
   
   try {
     await client.connect();
-    console.log('💰 Seeding account data...');
+    console.log(' Seeding account data...');
     
     // Clear existing data
     await client.query('TRUNCATE TABLE accounts CASCADE');
@@ -146,10 +146,10 @@ async function seedAccountData() {
       );
     }
     
-    console.log(`✅ Inserted ${sampleAccounts.length} accounts`);
+    console.log(` Inserted ${sampleAccounts.length} accounts`);
     
   } catch (error) {
-    console.error('❌ Error seeding account data:', error);
+    console.error(' Error seeding account data:', error);
     throw error;
   } finally {
     await client.end();
@@ -161,7 +161,7 @@ async function seedTransactionData() {
   
   try {
     await client.connect();
-    console.log('💸 Seeding transaction data...');
+    console.log(' Seeding transaction data...');
     
     // Clear existing data
     await client.query('TRUNCATE TABLE transactions CASCADE');
@@ -191,10 +191,10 @@ async function seedTransactionData() {
       );
     }
     
-    console.log(`✅ Inserted ${sampleTransactions.length} sample transactions`);
+    console.log(` Inserted ${sampleTransactions.length} sample transactions`);
     
   } catch (error) {
-    console.error('❌ Error seeding transaction data:', error);
+    console.error(' Error seeding transaction data:', error);
     throw error;
   } finally {
     await client.end();
@@ -202,14 +202,14 @@ async function seedTransactionData() {
 }
 
 async function seedAllData() {
-  console.log('🌱 Starting database seeding...\n');
+  console.log(' Starting database seeding...\n');
   
   try {
     await seedCustomerData();
     await seedAccountData();
     await seedTransactionData();
     
-    console.log('\n🎉 All data seeded successfully!');
+    console.log('\n All data seeded successfully!');
     console.log('\nSample data summary:');
     console.log('- 3 customers with contact information');
     console.log('- 5 accounts with various balances');
@@ -217,7 +217,7 @@ async function seedAllData() {
     console.log('\nYou can now test the system with the provided sample data.');
     
   } catch (error) {
-    console.error('\n❌ Seeding failed:', error.message);
+    console.error('\n Seeding failed:', error.message);
     process.exit(1);
   }
 }

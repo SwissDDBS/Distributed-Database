@@ -43,21 +43,21 @@ export class TokenGenerator {
   printSampleTokens(): void {
     const tokens = this.generateSampleTokens();
     
-    console.log('\n🔐 Sample JWT Tokens for Testing:');
+    console.log('\n Sample JWT Tokens for Testing:');
     console.log('=====================================');
     
-    console.log('\n👤 Customer Tokens:');
+    console.log('\n Customer Tokens:');
     console.log(`Alice (Customer): ${tokens.alice_customer}`);
     console.log(`Bob (Customer): ${tokens.bob_customer}`);
     console.log(`Carol (Customer): ${tokens.carol_customer}`);
     
-    console.log('\n🏪 Teller Token:');
+    console.log('\n Teller Token:');
     console.log(`Teller: ${tokens.teller}`);
     
-    console.log('\n👑 Admin Token:');
+    console.log('\n Admin Token:');
     console.log(`Admin: ${tokens.admin}`);
     
-    console.log('\n📝 Usage Examples:');
+    console.log('\n Usage Examples:');
     console.log('curl -H "Authorization: Bearer <token>" http://localhost:3001/customers/550e8400-e29b-41d4-a716-446655440001');
     console.log('curl -H "Authorization: Bearer <token>" -X POST http://localhost:3003/transfers -d \'{"source_account_id":"...","destination_account_id":"...","amount":100}\'');
     console.log('=====================================\n');

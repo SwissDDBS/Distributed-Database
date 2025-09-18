@@ -14,8 +14,6 @@
     "build:accounts": "cd services/accounts-service && npm run build",
     "build:transactions": "cd services/transactions-service && npm run build",
     "build:customer": "cd services/customer-service && npm run build",
-    "start": "docker-compose up --build",
-    "stop": "docker-compose down",
     "db:setup": "node scripts/setup-databases.js",
     "db:generate": "npm run db:generate:accounts && npm run db:generate:transactions && npm run db:generate:customer",
     "db:generate:accounts": "cd services/accounts-service && npm run db:generate",

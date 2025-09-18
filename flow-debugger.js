@@ -55,14 +55,14 @@ class TransferFlowDebugger {
   
   setupEventHandlers() {
     process.on('SIGINT', () => {
-      console.log(chalk.yellow('\n🛑 Stopping transfer flow debugger...'));
+      console.log(chalk.yellow('\n Stopping transfer flow debugger...'));
       this.stop();
       process.exit(0);
     });
   }
   
   start() {
-    console.log(chalk.magenta.bold('🏦 Transfer Flow Debugger'));
+    console.log(chalk.magenta.bold(' Transfer Flow Debugger'));
     console.log(chalk.magenta('================================'));
     console.log('');
     
@@ -71,20 +71,20 @@ class TransferFlowDebugger {
   }
   
   printHeader() {
-    console.log(chalk.cyan('📋 Monitoring Configuration:'));
-    console.log(`   • Show only transfers: ${this.filters.showOnlyTransfers ? '✅' : '❌'}`);
+    console.log(chalk.cyan(' Monitoring Configuration:'));
+    console.log(`   • Show only transfers: ${this.filters.showOnlyTransfers ? '' : ''}`);
     console.log(`   • Minimum log level: ${this.filters.minLevel}`);
     console.log('');
     
-    console.log(chalk.cyan('📁 Log Files:'));
+    console.log(chalk.cyan(' Log Files:'));
     Object.entries(this.logFiles).forEach(([service, filePath]) => {
       const exists = fs.existsSync(filePath);
-      const status = exists ? chalk.green('✅') : chalk.red('❌');
+      const status = exists ? chalk.green('') : chalk.red('');
       console.log(`   ${status} ${service}: ${filePath}`);
     });
     
     console.log('');
-    console.log(chalk.cyan('🎯 Live Transfer Flow (Ctrl+C to stop):'));
+    console.log(chalk.cyan(' Live Transfer Flow (Ctrl+C to stop):'));
     console.log(''.padEnd(80, '='));
   }
   
@@ -114,12 +114,12 @@ class TransferFlowDebugger {
       });
       
       tail.on('error', (error) => {
-        console.log(chalk.red(`❌ Error tailing ${service}: ${error.message}`));
+        console.log(chalk.red(` Error tailing ${service}: ${error.message}`));
       });
       
       tail.watch();
     } catch (error) {
-      console.log(chalk.red(`❌ Failed to start tailing ${service}: ${error.message}`));
+      console.log(chalk.red(` Failed to start tailing ${service}: ${error.message}`));
     }
   }
   
@@ -263,33 +263,33 @@ class TransferFlowDebugger {
     switch (event) {
       case 'TRANSFER_REQUEST_RECEIVED':
         const details = logEntry.details || {};
-        message = chalk.cyan(`🚀 Transfer Request: $${details.amount} from ${this.formatAccountId(details.source_account_id)} → ${this.formatAccountId(details.destination_account_id)}`);
+        message = chalk.cyan(` Transfer Request: $${details.amount} from ${this.formatAccountId(details.source_account_id)} → ${this.formatAccountId(details.destination_account_id)}`);
         break;
         
       case 'TRANSFER_REQUEST_COMPLETED':
         const status = logEntry.details?.status;
         if (status === 'committed') {
-          message = chalk.green('✅ Transfer COMMITTED');
+          message = chalk.green(' Transfer COMMITTED');
         } else if (status === 'aborted') {
-          message = chalk.red('❌ Transfer ABORTED');
+          message = chalk.red(' Transfer ABORTED');
         } else {
-          message = chalk.yellow('⏸️  Transfer COMPLETED');
+          message = chalk.yellow('  Transfer COMPLETED');
         }
         break;
         
       case 'PREPARE_PHASE_FAILED':
-        message = chalk.red('❌ Prepare phase FAILED: ' + (logEntry.details?.reason || ''));
+        message = chalk.red(' Prepare phase FAILED: ' + (logEntry.details?.reason || ''));
         break;
         
       case 'PREPARE_SUCCESS_VOTE_COMMIT':
         const acc = logEntry.details?.account_id;
         const op = logEntry.details?.operation;
         const amount = logEntry.details?.amount;
-        message = chalk.green(`✅ ${op?.toUpperCase()} prepared: ${this.formatAccountId(acc)} ${op === 'debit' ? '-' : '+'}$${Math.abs(amount)}`);
+        message = chalk.green(` ${op?.toUpperCase()} prepared: ${this.formatAccountId(acc)} ${op === 'debit' ? '-' : '+'}$${Math.abs(amount)}`);
         break;
         
       case 'PREPARE_FAILED_ACCOUNT_LOCKED':
-        message = chalk.yellow('🔒 Account locked by another transaction');
+        message = chalk.yellow(' Account locked by another transaction');
         break;
         
       default:
@@ -306,23 +306,23 @@ class TransferFlowDebugger {
     
     switch (phase) {
       case 'INITIATION':
-        icon = '🏁';
+        icon = '';
         color = chalk.blue;
         break;
       case 'PREPARE':
-        icon = '🔄';
+        icon = '';
         color = chalk.yellow;
         break;
       case 'COMMIT':
-        icon = '✅';
+        icon = '';
         color = chalk.green;
         break;
       case 'ABORT':
-        icon = '❌';
+        icon = '';
         color = chalk.red;
         break;
       case 'COMPLETION':
-        icon = '🎯';
+        icon = '';
         color = chalk.green;
         break;
     }
@@ -338,7 +338,7 @@ class TransferFlowDebugger {
       const response = logEntry.response;
       const participant = logEntry.participant_service;
       const color = response === 'SUCCESS' ? chalk.green : chalk.red;
-      const icon = response === 'SUCCESS' ? '✅' : '❌';
+      const icon = response === 'SUCCESS' ? '' : '';
       
       return color(`${icon} ${operation} ${participant}: ${message}`);
     }
@@ -385,11 +385,11 @@ class TransferFlowDebugger {
       }
     });
     
-    console.log('\n' + chalk.cyan('📊 Session Summary:'));
+    console.log('\n' + chalk.cyan(' Session Summary:'));
     console.log(`   Active transactions tracked: ${this.transactions.size}`);
     
     if (this.transactions.size > 0) {
-      console.log('\n' + chalk.cyan('🔄 Transaction Status:'));
+      console.log('\n' + chalk.cyan(' Transaction Status:'));
       for (const [txId, tx] of this.transactions) {
         const statusColor = tx.status === 'committed' ? chalk.green : 
                            tx.status === 'aborted' ? chalk.red : 
@@ -405,17 +405,17 @@ class TransferFlowDebugger {
   // CLI commands for interactive use
   setTransactionFilter(transactionIds) {
     this.filters.transactionIds = new Set(transactionIds);
-    console.log(chalk.green(`✅ Filtering for transactions: ${Array.from(transactionIds).join(', ')}`));
+    console.log(chalk.green(` Filtering for transactions: ${Array.from(transactionIds).join(', ')}`));
   }
   
   clearFilters() {
     this.filters.transactionIds.clear();
-    console.log(chalk.green('✅ Filters cleared'));
+    console.log(chalk.green(' Filters cleared'));
   }
   
   showStats() {
     console.log('\n' + ''.padEnd(50, '='));
-    console.log(chalk.cyan.bold('📊 REAL-TIME STATISTICS'));
+    console.log(chalk.cyan.bold(' REAL-TIME STATISTICS'));
     console.log(''.padEnd(50, '='));
     
     console.log(`Active transactions: ${chalk.bold(this.transactions.size)}`);

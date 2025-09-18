@@ -33,7 +33,7 @@ const ADMIN_TOKEN = jwt.sign(
 );
 
 async function setupTestAccount() {
-  console.log('🔧 Setting up test account...');
+  console.log(' Setting up test account...');
   
   try {
     // Reset account balance to initial amount
@@ -46,10 +46,10 @@ async function setupTestAccount() {
       }
     );
     
-    console.log(`✅ Account ${TEST_ACCOUNT_ID} reset to $${INITIAL_BALANCE}`);
+    console.log(` Account ${TEST_ACCOUNT_ID} reset to $${INITIAL_BALANCE}`);
     return true;
   } catch (error) {
-    console.error('❌ Failed to setup test account:', error.response?.data || error.message);
+    console.error(' Failed to setup test account:', error.response?.data || error.message);
     return false;
   }
 }
@@ -66,7 +66,7 @@ async function getAccountBalance() {
     
     return response.data.data.balance;
   } catch (error) {
-    console.error('❌ Failed to get account balance:', error.response?.data || error.message);
+    console.error(' Failed to get account balance:', error.response?.data || error.message);
     return null;
   }
 }
@@ -109,28 +109,28 @@ async function performUnsafeWithdrawal(amount, requestId) {
 }
 
 async function demonstrateRaceCondition() {
-  console.log('\n🏁 Starting Race Condition Demonstration');
+  console.log('\n Starting Race Condition Demonstration');
   console.log('=' .repeat(50));
   
   // Step 1: Setup
   const setupSuccess = await setupTestAccount();
   if (!setupSuccess) {
-    console.log('❌ Cannot proceed without proper account setup');
+    console.log(' Cannot proceed without proper account setup');
     return;
   }
   
   const initialBalance = await getAccountBalance();
-  console.log(`💰 Initial balance: $${initialBalance}`);
+  console.log(` Initial balance: $${initialBalance}`);
   
   // Step 2: Explain the test
-  console.log('\n📋 Test Scenario:');
+  console.log('\n Test Scenario:');
   console.log(`   • Account starts with: $${initialBalance}`);
   console.log(`   • Two concurrent withdrawals of: $${WITHDRAWAL_AMOUNT} each`);
   console.log(`   • Expected correct result: One succeeds ($${initialBalance - WITHDRAWAL_AMOUNT}), one fails`);
   console.log(`   • Race condition result: Both succeed (negative balance)`);
   
   // Step 3: Execute concurrent withdrawals
-  console.log('\n🚀 Executing concurrent unsafe withdrawals...');
+  console.log('\n Executing concurrent unsafe withdrawals...');
   
   const startTime = Date.now();
   
@@ -143,7 +143,7 @@ async function demonstrateRaceCondition() {
   const totalTime = Date.now() - startTime;
   
   // Step 4: Analyze results
-  console.log('\n📊 Results:');
+  console.log('\n Results:');
   console.log('-'.repeat(30));
   
   console.log(`${result1.requestId}:`);
@@ -152,7 +152,7 @@ async function demonstrateRaceCondition() {
   if (result1.success) {
     console.log(`   New Balance: $${result1.newBalance}`);
     if (result1.warning) {
-      console.log(`   ⚠️  Warning: ${result1.warning}`);
+      console.log(`     Warning: ${result1.warning}`);
     }
   } else {
     console.log(`   Error: ${result1.error}`);
@@ -164,7 +164,7 @@ async function demonstrateRaceCondition() {
   if (result2.success) {
     console.log(`   New Balance: $${result2.newBalance}`);
     if (result2.warning) {
-      console.log(`   ⚠️  Warning: ${result2.warning}`);
+      console.log(`     Warning: ${result2.warning}`);
     }
   } else {
     console.log(`   Error: ${result2.error}`);
@@ -174,12 +174,12 @@ async function demonstrateRaceCondition() {
   
   // Step 5: Get final balance and analyze
   const finalBalance = await getAccountBalance();
-  console.log(`\n💰 Final balance: $${finalBalance}`);
+  console.log(`\n Final balance: $${finalBalance}`);
   
   const totalWithdrawn = (result1.success ? WITHDRAWAL_AMOUNT : 0) + (result2.success ? WITHDRAWAL_AMOUNT : 0);
   const expectedBalance = initialBalance - totalWithdrawn;
   
-  console.log('\n🔍 Analysis:');
+  console.log('\n Analysis:');
   console.log('-'.repeat(20));
   console.log(`Initial balance: $${initialBalance}`);
   console.log(`Successful withdrawals: ${(result1.success ? 1 : 0) + (result2.success ? 1 : 0)}`);
@@ -188,15 +188,15 @@ async function demonstrateRaceCondition() {
   console.log(`Actual balance: $${finalBalance}`);
   
   if (Math.abs(finalBalance - expectedBalance) < 0.01) {
-    console.log('✅ No race condition detected - operations were serialized correctly');
+    console.log(' No race condition detected - operations were serialized correctly');
   } else {
-    console.log('🚨 RACE CONDITION DETECTED!');
+    console.log(' RACE CONDITION DETECTED!');
     console.log(`   Balance discrepancy: $${(finalBalance - expectedBalance).toFixed(2)}`);
     console.log('   This demonstrates why atomic operations are crucial in banking systems!');
   }
   
   // Step 6: Demonstrate the correct way
-  console.log('\n💡 The correct approach:');
+  console.log('\n The correct approach:');
   console.log('   Use the 2PC protocol via the Transactions Service:');
   console.log('   POST /transfers with proper coordination ensures atomicity');
   console.log('   This prevents race conditions and maintains data consistency');
@@ -215,28 +215,28 @@ async function checkServiceHealth() {
 
 // Main execution
 async function main() {
-  console.log('🏦 Distributed Banking System - Race Condition Demo');
-  console.log('⚠️  This demonstration shows why proper concurrency control is essential');
+  console.log(' Distributed Banking System - Race Condition Demo');
+  console.log('  This demonstration shows why proper concurrency control is essential');
   
   // Check if service is available
-  console.log('\n🔍 Checking service availability...');
+  console.log('\n Checking service availability...');
   const serviceHealthy = await checkServiceHealth();
   
   if (!serviceHealthy) {
-    console.log('❌ Accounts Service is not available');
+    console.log(' Accounts Service is not available');
     console.log('   Please start the service first: npm run dev:accounts');
     console.log('   Or run the full system: npm start');
     process.exit(1);
   }
   
-  console.log('✅ Accounts Service is available');
+  console.log(' Accounts Service is available');
   
   await demonstrateRaceCondition();
 }
 
 if (require.main === module) {
   main().catch(error => {
-    console.error('\n❌ Demo failed:', error.message);
+    console.error('\n Demo failed:', error.message);
     process.exit(1);
   });
 }

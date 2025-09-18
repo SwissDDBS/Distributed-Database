@@ -33,7 +33,7 @@ app.use(errorHandler);
 
 // Start server
 const server = app.listen(config.port, () => {
-  logger.info(`👥 Customer Service started on port ${config.port}`, {
+  logger.info(` Customer Service started on port ${config.port}`, {
     service: config.serviceName,
     port: config.port,
     nodeEnv: config.nodeEnv,

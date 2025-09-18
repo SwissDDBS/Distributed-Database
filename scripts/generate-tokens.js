@@ -43,10 +43,10 @@ function generateToken(payload, expiresIn = '24h') {
 }
 
 function generateAllTokens() {
-  console.log('\n🔐 JWT Tokens for Distributed Banking System');
+  console.log('\n JWT Tokens for Distributed Banking System');
   console.log('='.repeat(60));
-  console.log(`🔑 JWT Secret: ${JWT_SECRET}`);
-  console.log(`⏰ Expires: 24 hours\n`);
+  console.log(` JWT Secret: ${JWT_SECRET}`);
+  console.log(` Expires: 24 hours\n`);
 
   const tokens = {};
 
@@ -58,43 +58,43 @@ function generateAllTokens() {
     
     tokens[user.name.toLowerCase().replace(' ', '_')] = token;
     
-    console.log(`👤 ${user.name} (${user.role.toUpperCase()})`);
+    console.log(` ${user.name} (${user.role.toUpperCase()})`);
     console.log(`   Customer ID: ${user.customer_id}`);
     console.log(`   Token: ${token}`);
     console.log('');
   });
 
-  console.log('📋 Quick Test Commands:');
+  console.log(' Quick Test Commands:');
   console.log('-'.repeat(40));
   
-  console.log('\n🏥 Health Checks:');
+  console.log('\n Health Checks:');
   console.log('curl http://localhost:3001/health  # Customer Service');
   console.log('curl http://localhost:3002/health  # Accounts Service');
   console.log('curl http://localhost:3003/health  # Transactions Service');
   
-  console.log('\n👤 Get Customer Info (Alice):');
+  console.log('\n Get Customer Info (Alice):');
   console.log(`curl -H "Authorization: Bearer ${tokens.alice_johnson}" http://localhost:3001/customers/550e8400-e29b-41d4-a716-446655440001`);
   
-  console.log('\n💰 Get Account Info (Alice\'s first account):');
+  console.log('\n Get Account Info (Alice\'s first account):');
   console.log(`curl -H "Authorization: Bearer ${tokens.alice_johnson}" http://localhost:3002/accounts/660e8400-e29b-41d4-a716-446655440001`);
   
-  console.log('\n💸 Transfer Money (Alice to Bob):');
+  console.log('\n Transfer Money (Alice to Bob):');
   console.log(`curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${tokens.alice_johnson}" \\`);
   console.log('     -d \'{"source_account_id":"660e8400-e29b-41d4-a716-446655440001","destination_account_id":"660e8400-e29b-41d4-a716-446655440003","amount":50}\' \\');
   console.log('     http://localhost:3003/transfers');
   
-  console.log('\n🔍 Check Transaction Status:');
+  console.log('\n Check Transaction Status:');
   console.log(`curl -H "Authorization: Bearer ${tokens.alice_johnson}" http://localhost:3003/transfers/status/<transaction_id>`);
   
-  console.log('\n⚠️  Test Race Condition (UNSAFE - Admin only):');
+  console.log('\n  Test Race Condition (UNSAFE - Admin only):');
   console.log(`curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${tokens.system_admin}" \\`);
   console.log('     -d \'{"amount":-100}\' \\');
   console.log('     http://localhost:3002/accounts/660e8400-e29b-41d4-a716-446655440001/unsafe-withdraw');
   
   console.log('\n' + '='.repeat(60));
-  console.log('💡 Tip: Save these tokens in environment variables for easier testing!');
-  console.log('💡 Use the admin token for administrative operations');
-  console.log('💡 Use customer tokens for regular banking operations');
+  console.log(' Tip: Save these tokens in environment variables for easier testing!');
+  console.log(' Use the admin token for administrative operations');
+  console.log(' Use customer tokens for regular banking operations');
   console.log('='.repeat(60) + '\n');
 
   return tokens;
@@ -107,7 +107,7 @@ function saveTokensToFile(tokens) {
   const tokenFile = path.join(__dirname, '..', 'test-tokens.json');
   
   fs.writeFileSync(tokenFile, JSON.stringify(tokens, null, 2));
-  console.log(`💾 Tokens saved to: ${tokenFile}`);
+  console.log(` Tokens saved to: ${tokenFile}`);
 }
 
 // Main execution
@@ -116,7 +116,7 @@ if (require.main === module) {
     const tokens = generateAllTokens();
     saveTokensToFile(tokens);
   } catch (error) {
-    console.error('❌ Error generating tokens:', error.message);
+    console.error(' Error generating tokens:', error.message);
     process.exit(1);
   }
 }

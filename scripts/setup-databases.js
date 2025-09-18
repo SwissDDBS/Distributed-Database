@@ -27,35 +27,35 @@ const services = [
 ];
 
 async function setupDatabases() {
-  console.log('🚀 Setting up databases for distributed banking system...\n');
+  console.log(' Setting up databases for distributed banking system...\n');
 
   for (const service of services) {
-    console.log(`📦 Setting up ${service.name}...`);
+    console.log(` Setting up ${service.name}...`);
     
     try {
       // Navigate to service directory
       const servicePath = path.join(__dirname, '..', 'services', service.name);
       process.chdir(servicePath);
       
-      console.log(`  📁 Working in: ${servicePath}`);
+      console.log(`   Working in: ${servicePath}`);
       
       // Generate migrations
-      console.log('  🔄 Generating migrations...');
+      console.log('   Generating migrations...');
       execSync('npm run db:generate', { stdio: 'inherit' });
       
       // Run migrations
-      console.log('  🏃 Running migrations...');
+      console.log('   Running migrations...');
       execSync('npm run db:migrate', { stdio: 'inherit' });
       
-      console.log(`  ✅ ${service.name} database setup complete!\n`);
+      console.log(`   ${service.name} database setup complete!\n`);
       
     } catch (error) {
-      console.error(`  ❌ Error setting up ${service.name}:`, error.message);
+      console.error(`   Error setting up ${service.name}:`, error.message);
       process.exit(1);
     }
   }
   
-  console.log('🎉 All databases setup successfully!');
+  console.log(' All databases setup successfully!');
   console.log('\nNext steps:');
   console.log('1. Start the services: npm start');
   console.log('2. Test the APIs: npm run test:2pc');

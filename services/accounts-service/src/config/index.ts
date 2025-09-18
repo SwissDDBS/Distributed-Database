@@ -33,6 +33,7 @@ export const config = {
   // Two-Phase Commit configuration
   twoPhaseCommit: {
     transactionTimeout: parseInt(process.env.TRANSACTION_TIMEOUT || '30000'), // 30 seconds
-    maxRetryAttempts: parseInt(process.env.MAX_RETRY_ATTEMPTS || '3'),
+    maxRetries: parseInt(process.env.MAX_RETRIES || '3'), // Number of retries for failed 2PC operations
+    retryDelay: parseInt(process.env.RETRY_DELAY || '1000'), // Delay between retries in milliseconds
   },
 } as const;

@@ -1,10 +1,10 @@
-# 🏦 Distributed Banking Database System
+#  Distributed Banking Database System
 
 A **production-grade** distributed banking database system demonstrating advanced distributed systems concepts including **Two-Phase Commit protocol**, **microservices architecture**, and **atomic transactions** across multiple services.
 
 Built with **Node.js**, **TypeScript**, **PostgreSQL**, and **Drizzle ORM**.
 
-## 🏗️ Architecture Overview
+##  Architecture Overview
 
 This system implements a distributed banking database using three independent microservices:
 
@@ -12,9 +12,9 @@ This system implements a distributed banking database using three independent mi
 - **Accounts Service** (`port 3002`): Handles account balances and implements Two-Phase Commit protocol
 - **Transactions Service** (`port 3003`): Orchestrates fund transfers as the 2PC coordinator
 
-Each service runs in its own Docker container with a dedicated PostgreSQL database.
+Each service runs independently with its own dedicated PostgreSQL database.
 
-## 🚀 Technology Stack
+##  Technology Stack
 
 - **Runtime**: Node.js 18+
 - **Language**: TypeScript
@@ -23,10 +23,9 @@ Each service runs in its own Docker container with a dedicated PostgreSQL databa
 - **ORM**: Drizzle ORM
 - **Authentication**: JWT (JSON Web Tokens)
 - **Logging**: Winston
-- **Containerization**: Docker & Docker Compose
 - **Development**: tsx (TypeScript execution)
 
-## 📁 Project Structure
+##  Project Structure
 
 ```
 dis_db/
@@ -36,15 +35,13 @@ dis_db/
 │   └── customer-service/          # Customer profile management
 ├── client/                        # CLI application for interacting with services
 ├── shared/                        # Shared types and utilities
-├── docker/                        # Database initialization scripts
 ├── logs/                          # Application logs (created at runtime)
 ├── scripts/                       # Setup and utility scripts
 ├── docs/                          # Documentation
-├── docker-compose.yml             # Multi-service orchestration
 └── README.md                      # This file
 ```
 
-## 🚀 Quick Start
+##  Quick Start
 
 ### Prerequisites
 
@@ -111,7 +108,7 @@ npm run test:race-condition
 npm run test:two-phase-commit
 ```
 
-## 💻 CLI Client Usage
+##  CLI Client Usage
 
 ### Interactive Mode (Recommended)
 
@@ -145,7 +142,7 @@ banking-cli health
 banking-cli tokens
 ```
 
-## 🌐 REST API Examples
+##  REST API Examples
 
 ### Authentication
 All API calls require JWT authentication. Get tokens using:
@@ -194,7 +191,7 @@ curl -H "Authorization: Bearer <token>" \
      http://localhost:3003/transfers/status/<transaction-id>
 ```
 
-## 🧪 Testing & Demonstrations
+##  Testing & Demonstrations
 
 This system includes comprehensive test scenarios demonstrating distributed systems concepts:
 
@@ -216,8 +213,8 @@ banking-cli demo --race-condition
 **What it demonstrates:**
 - Two concurrent $100 withdrawals from account with $150
 - **Expected**: One succeeds, one fails (balance: $50)  
-- **Race condition**: Both succeed (balance: -$50) ❌
-- **Solution**: Use 2PC protocol for atomicity ✅
+- **Race condition**: Both succeed (balance: -$50) 
+- **Solution**: Use 2PC protocol for atomicity 
 
 ### 2. Two-Phase Commit Protocol
 
@@ -235,9 +232,9 @@ banking-cli demo --concurrent
 ```
 
 **Test scenarios:**
-- ✅ **Concurrent Safe Transfers**: Multiple 2PC transfers simultaneously
-- ⚠️ **Mixed Operations**: Safe 2PC vs unsafe operations  
-- 🔥 **High Concurrency**: Stress testing with 10+ concurrent transfers
+-  **Concurrent Safe Transfers**: Multiple 2PC transfers simultaneously
+-  **Mixed Operations**: Safe 2PC vs unsafe operations  
+-  **High Concurrency**: Stress testing with 10+ concurrent transfers
 
 ### 3. Interactive Testing
 
@@ -252,7 +249,7 @@ cd client && npm run interactive
 # - Monitor transaction history
 ```
 
-## 🔒 Security Features
+##  Security Features
 
 ### Authentication
 - JWT-based authentication for all API endpoints
@@ -274,7 +271,7 @@ cd client && npm run interactive
 }
 ```
 
-## 🔄 Two-Phase Commit Protocol Implementation
+##  Two-Phase Commit Protocol Implementation
 
 This system implements a complete 2PC protocol ensuring **ACID properties** across distributed services:
 
@@ -312,7 +309,7 @@ If ANY participant votes ABORT:
 - **Coordinator failures**: Transaction status logging for recovery
 - **Inconsistent states**: Critical error logging with manual intervention alerts
 
-## 📊 Database Schema
+##  Database Schema
 
 ### Customer Database
 ```sql
@@ -354,7 +351,7 @@ CREATE TABLE transactions (
 );
 ```
 
-## 📝 Logging & Auditability
+##  Logging & Auditability
 
 ### Structured Logging
 All services use Winston for structured JSON logging:
@@ -380,26 +377,7 @@ All services use Winston for structured JSON logging:
 - `logs/customers.log`: Customer service events
 - `logs/error.log`: Error events across all services
 
-## 🐳 Docker Configuration
-
-### Services
-- `customer-db`: PostgreSQL on port 5432
-- `accounts-db`: PostgreSQL on port 5433
-- `transactions-db`: PostgreSQL on port 5434
-- `customer-service`: Node.js service on port 3001
-- `accounts-service`: Node.js service on port 3002
-- `transactions-service`: Node.js service on port 3003
-
-### Environment Variables
-```env
-DATABASE_URL=postgresql://banking_user:banking_pass@<db-host>:5432/<db-name>
-JWT_SECRET=your-super-secret-jwt-key
-SERVICE_NAME=<ServiceName>
-SERVICE_PORT=3000
-NODE_ENV=development
-```
-
-## 🛠️ Development Commands
+##  Development Commands
 
 ### Service Management
 ```bash
@@ -457,7 +435,7 @@ curl http://localhost:3003/health  # Transactions
 cd client && npm run cli health
 ```
 
-## 🔧 Configuration
+##  Configuration
 
 ### Service Configuration
 Each service can be configured via environment variables or config files in `src/config/`.
@@ -465,13 +443,13 @@ Each service can be configured via environment variables or config files in `src
 ### Database Configuration
 Database connections are configured in each service's Drizzle configuration file.
 
-## 📈 Monitoring & Health Checks
+##  Monitoring & Health Checks
 
 Each service exposes health check endpoints:
 - `GET /health`: Basic health status
 - `GET /metrics`: Service metrics (if implemented)
 
-## 🤝 Contributing
+## Contributing
 
 1. Fork the repository
 2. Create a feature branch
@@ -479,11 +457,11 @@ Each service exposes health check endpoints:
 4. Add tests for new functionality
 5. Submit a pull request
 
-## 📄 License
+## License
 
 MIT License - see LICENSE file for details
 
-## 🆘 Troubleshooting
+## Troubleshooting
 
 ### Common Issues
 
@@ -494,7 +472,7 @@ MIT License - see LICENSE file for details
 2. **Service Not Responding**
    - Check if all dependencies are installed
    - Verify port availability
-   - Check Docker container logs
+   - Check service logs in the `logs/` directory
 
 3. **JWT Authentication Failed**
    - Ensure JWT_SECRET is set consistently across services
@@ -503,10 +481,9 @@ MIT License - see LICENSE file for details
 ### Getting Help
 
 - Check the logs in the `logs/` directory
-- Use `docker-compose logs <service-name>` to view container logs
 - Ensure all services are healthy via `/health` endpoints
 
-## 🎓 Educational Objectives
+## Educational Objectives
 
 This project demonstrates:
 
@@ -528,5 +505,4 @@ This project demonstrates:
 4. **Software Engineering**
    - TypeScript for type safety
    - Structured logging
-   - Docker containerization
    - API design patterns

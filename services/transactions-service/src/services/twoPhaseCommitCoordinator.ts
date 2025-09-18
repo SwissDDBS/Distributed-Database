@@ -37,6 +37,8 @@ export interface TransferResult {
   transaction_id: string;
   status: 'committed' | 'aborted';
   message: string;
+  retry_attempt?: number;
+  total_attempts?: number;
   details?: Record<string, any>;
 }
 
@@ -50,24 +52,120 @@ export class TwoPhaseCommitCoordinator {
   }
 
   /**
+   * Execute a fund transfer with retry mechanism
+   */
+  async executeTransferWithRetry(
+    transferRequest: TransferRequest,
+    authToken: string,
+    initiatorId: string,
+    providedTransactionId?: string
+  ): Promise<TransferResult> {
+    const maxRetries = config.twoPhaseCommit.maxRetries;
+    const retryDelay = config.twoPhaseCommit.retryDelay;
+
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      logger.info(`Transfer attempt ${attempt}/${maxRetries}`, {
+        source_account_id: transferRequest.source_account_id,
+        destination_account_id: transferRequest.destination_account_id,
+        amount: transferRequest.amount,
+        provided_transaction_id: providedTransactionId,
+        attempt,
+        max_retries: maxRetries
+      });
+
+      const result = await this.executeTransfer(
+        transferRequest,
+        authToken,
+        initiatorId,
+        providedTransactionId
+      );
+
+      // Add retry information to the result
+      result.retry_attempt = attempt;
+      result.total_attempts = maxRetries;
+
+      if (result.status === 'committed') {
+        logger.info(`Transfer succeeded on attempt ${attempt}`, {
+          transaction_id: result.transaction_id,
+          attempt,
+          total_attempts: maxRetries
+        });
+        return result;
+      }
+
+      // If this was the last attempt, return the failed result
+      if (attempt === maxRetries) {
+        logger.error(`Transfer failed after all ${maxRetries} attempts`, {
+          transaction_id: result.transaction_id,
+          final_attempt: attempt,
+          total_attempts: maxRetries
+        });
+        return result;
+      }
+
+      // Wait before retrying (except for the last iteration)
+      logger.info(`Transfer attempt ${attempt} failed, retrying in ${retryDelay}ms`, {
+        transaction_id: result.transaction_id,
+        attempt,
+        next_attempt: attempt + 1,
+        retry_delay: retryDelay
+      });
+      
+      await new Promise(resolve => setTimeout(resolve, retryDelay));
+    }
+
+    // This should never be reached, but included for completeness
+    throw new Error('Unexpected retry loop exit');
+  }
+
+  /**
    * Execute a fund transfer using the Two-Phase Commit protocol
    */
   async executeTransfer(
     transferRequest: TransferRequest,
     authToken: string,
-    initiatorId: string
+    initiatorId: string,
+    providedTransactionId?: string
   ): Promise<TransferResult> {
     const { source_account_id, destination_account_id, amount } = transferRequest;
     const serviceAdminToken = jwt.sign({ customer_id: 'service-coordinator', role: 'admin' }, config.jwt.secret, { expiresIn: '1h' });
-    // Step 1: Create transaction record
-    const transaction = await this.transactionRepo.create({
-      source_account_id,
-      destination_account_id,
-      amount: amount.toString(),
-      status: 'pending',
-    });
-
-    const transactionId = transaction.transaction_id;
+    
+    // Step 1: Create or use existing transaction record
+    let transaction;
+    let transactionId: string;
+    
+    if (providedTransactionId) {
+      // Reuse the existing transaction ID for retry
+      transactionId = providedTransactionId;
+      // Try to get existing transaction or create new one with the same ID
+      try {
+        transaction = await this.transactionRepo.findById(transactionId);
+        if (!transaction) {
+          transaction = await this.transactionRepo.createWithId({
+            transaction_id: transactionId, // Use provided ID
+            source_account_id,
+            destination_account_id,
+            amount: amount.toString(),
+            status: 'pending',
+          });
+        }
+      } catch (error) {
+        // If transaction already exists, fetch it
+        transaction = await this.transactionRepo.findById(transactionId);
+        if (!transaction) {
+          throw new Error(`Failed to handle transaction with ID ${transactionId}`);
+        }
+      }
+    } else {
+      // Create new transaction record
+      transaction = await this.transactionRepo.create({
+        source_account_id,
+        destination_account_id,
+        amount: amount.toString(),
+        status: 'pending',
+      });
+      transactionId = transaction.transaction_id;
+    }
 
     logTransactionLifecycle('INITIATION', transactionId, {
       source_account_id,

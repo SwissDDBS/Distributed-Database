@@ -6,9 +6,9 @@ async function runMigrations() {
   
   try {
     await migrate(db, { migrationsFolder: './drizzle/migrations' });
-    console.log('✅ Transactions Service migrations completed successfully!');
+    console.log(' Transactions Service migrations completed successfully!');
   } catch (error) {
-    console.error('❌ Migration failed:', error);
+    console.error(' Migration failed:', error);
     process.exit(1);
   } finally {
     await client.end();
